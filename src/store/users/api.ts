@@ -155,9 +155,13 @@ export const usersApi = createApi({
       },
       async onQueryStarted(id, { dispatch, queryFulfilled }) {
         const patchResult = dispatch(
-          usersApi.util.updateQueryData('getUsers', undefined, (draft) =>
-            draft.filter((user) => user.id !== id)
-          )
+          usersApi.util.updateQueryData('getUsers', undefined, (draft) => {
+            const userIndex = draft.findIndex((user) => user.id === id)
+
+            if (userIndex !== -1) {
+              draft.splice(userIndex, 1)
+            }
+          })
         )
 
         try {
