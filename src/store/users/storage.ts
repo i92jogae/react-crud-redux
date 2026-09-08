@@ -1,27 +1,56 @@
 import type { UserWithId, UsersUiState } from './types'
 
-export const USERS_STORAGE_KEY = 'react_crud_redux_users'
-export const USERS_UI_STORAGE_KEY = 'react_crud_redux_users_ui'
-const LEGACY_REDUX_STORAGE_KEY = '_redux_state_'
+export const USERS_STORAGE_KEY = 'redux_users_dashboard_users_v2'
+export const USERS_UI_STORAGE_KEY = 'redux_users_dashboard_ui_v2'
 
 export const DEFAULT_USERS: UserWithId[] = [
   {
     id: '1',
-    name: 'Enrique Pérez',
-    email: 'enrique@gmail.com',
-    github: 'i92jogae'
+    name: 'Ana López',
+    email: 'ana.lopez@productflow.dev',
+    github: 'analopezdev'
   },
   {
     id: '2',
-    name: 'Pablo Pérez',
-    email: 'pablo@gmail.com',
-    github: 'pablo'
+    name: 'Carlos Vega',
+    email: 'carlos.vega@productflow.dev',
+    github: 'carlosvega'
   },
   {
     id: '3',
-    name: 'Juan Robles',
-    email: 'juanrobles@gmail.com',
-    github: 'juan'
+    name: 'Lucía Navarro',
+    email: 'lucia.navarro@productflow.dev',
+    github: 'lucianavarro'
+  },
+  {
+    id: '4',
+    name: 'Diego Martín',
+    email: 'diego.martin@productflow.dev',
+    github: 'diegomartindev'
+  },
+  {
+    id: '5',
+    name: 'Marta Ruiz',
+    email: 'marta.ruiz@productflow.dev',
+    github: 'martaruiz'
+  },
+  {
+    id: '6',
+    name: 'Álvaro Romero',
+    email: 'alvaro.romero@productflow.dev',
+    github: 'alvaroromero'
+  },
+  {
+    id: '7',
+    name: 'Sara Molina',
+    email: 'sara.molina@productflow.dev',
+    github: 'saramolina'
+  },
+  {
+    id: '8',
+    name: 'Javier Ortega',
+    email: 'javier.ortega@productflow.dev',
+    github: 'javierortega'
   }
 ]
 
@@ -31,37 +60,32 @@ export const DEFAULT_USERS_UI_STATE: UsersUiState = {
   sortDirection: 'asc'
 }
 
-const isUserWithId = (value: unknown): value is UserWithId => {
-  if (typeof value !== 'object' || value === null) return false
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
 
-  const user = value as Record<string, unknown>
-
+function isUserWithId(value: unknown): value is UserWithId {
   return (
-    typeof user.id === 'string' &&
-    typeof user.name === 'string' &&
-    typeof user.email === 'string' &&
-    typeof user.github === 'string'
+    isRecord(value) &&
+    typeof value.id === 'string' &&
+    typeof value.name === 'string' &&
+    typeof value.email === 'string' &&
+    typeof value.github === 'string'
   )
 }
 
-const isUsersUiState = (value: unknown): value is UsersUiState => {
-  if (typeof value !== 'object' || value === null) return false
-
-  const state = value as Record<string, unknown>
-
+function isUsersUiState(value: unknown): value is UsersUiState {
   return (
-    typeof state.search === 'string' &&
-    (state.sortBy === 'name' || state.sortBy === 'email' || state.sortBy === 'github') &&
-    (state.sortDirection === 'asc' || state.sortDirection === 'desc')
+    isRecord(value) &&
+    typeof value.search === 'string' &&
+    ['name', 'email', 'github'].includes(String(value.sortBy)) &&
+    ['asc', 'desc'].includes(String(value.sortDirection))
   )
 }
 
-const cloneDefaultUsers = () => DEFAULT_USERS.map((user) => ({ ...user }))
-const cloneDefaultUsersUiState = () => ({ ...DEFAULT_USERS_UI_STATE })
-
-export const getUsersFromLocalStorage = (): UserWithId[] => {
+export function getUsersFromLocalStorage(): UserWithId[] {
   try {
-    const persistedUsers = localStorage.getItem(USERS_STORAGE_KEY)
+    const persistedUsers = window.localStorage.getItem(USERS_STORAGE_KEY)
 
     if (persistedUsers) {
       const parsedUsers: unknown = JSON.parse(persistedUsers)
@@ -71,56 +95,51 @@ export const getUsersFromLocalStorage = (): UserWithId[] => {
       }
     }
 
-    const legacyState = localStorage.getItem(LEGACY_REDUX_STORAGE_KEY)
+    const legacyState = window.localStorage.getItem('_redux_state_')
 
     if (legacyState) {
       const parsedLegacyState: unknown = JSON.parse(legacyState)
 
-      if (
-        typeof parsedLegacyState === 'object' &&
-        parsedLegacyState !== null &&
-        'users' in parsedLegacyState &&
-        Array.isArray(parsedLegacyState.users) &&
-        parsedLegacyState.users.every(isUserWithId)
-      ) {
-        saveUsersToLocalStorage(parsedLegacyState.users)
-        localStorage.removeItem(LEGACY_REDUX_STORAGE_KEY)
+      if (isRecord(parsedLegacyState)) {
+        const legacyUsers = parsedLegacyState.users
 
-        return parsedLegacyState.users
+        if (Array.isArray(legacyUsers) && legacyUsers.every(isUserWithId)) {
+          saveUsersToLocalStorage(legacyUsers)
+          return legacyUsers
+        }
       }
     }
+
+    return DEFAULT_USERS.map((user) => ({ ...user }))
   } catch {
-    localStorage.removeItem(USERS_STORAGE_KEY)
+    return DEFAULT_USERS.map((user) => ({ ...user }))
   }
-
-  const defaultUsers = cloneDefaultUsers()
-  saveUsersToLocalStorage(defaultUsers)
-
-  return defaultUsers
 }
 
-export const saveUsersToLocalStorage = (users: UserWithId[]) => {
-  localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users))
+export function saveUsersToLocalStorage(users: UserWithId[]) {
+  window.localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users))
 }
 
-export const loadUsersUiState = (): UsersUiState => {
+export function loadUsersUiState(): UsersUiState {
   try {
-    const persistedUiState = localStorage.getItem(USERS_UI_STORAGE_KEY)
+    const persistedUiState = window.localStorage.getItem(USERS_UI_STORAGE_KEY)
 
-    if (!persistedUiState) return cloneDefaultUsersUiState()
+    if (!persistedUiState) {
+      return { ...DEFAULT_USERS_UI_STATE }
+    }
 
     const parsedUiState: unknown = JSON.parse(persistedUiState)
 
     if (isUsersUiState(parsedUiState)) {
       return parsedUiState
     }
-  } catch {
-    localStorage.removeItem(USERS_UI_STORAGE_KEY)
-  }
 
-  return cloneDefaultUsersUiState()
+    return { ...DEFAULT_USERS_UI_STATE }
+  } catch {
+    return { ...DEFAULT_USERS_UI_STATE }
+  }
 }
 
-export const saveUsersUiState = (state: UsersUiState) => {
-  localStorage.setItem(USERS_UI_STORAGE_KEY, JSON.stringify(state))
+export function saveUsersUiState(uiState: UsersUiState) {
+  window.localStorage.setItem(USERS_UI_STORAGE_KEY, JSON.stringify(uiState))
 }
