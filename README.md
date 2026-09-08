@@ -1,10 +1,29 @@
-# User Management Dashboard
+# Redux Users Dashboard
 
-Aplicación frontend para gestionar usuarios con **React**, **TypeScript**, **Redux Toolkit**, **RTK Query**, **React Hook Form**, **Zod** y **Tailwind CSS**.
+Demo: https://redux-users-dashboard.netlify.app/
 
-El objetivo del proyecto es evolucionar un CRUD básico hacia una pequeña aplicación de gestión con una arquitectura más cercana a un entorno profesional: estado global tipado, API simulada, caché, optimistic UI, formularios validados, feedback visual, pruebas automatizadas y CI/CD.
+User Management Dashboard built with React, TypeScript, Redux Toolkit, RTK Query, React Hook Form, Zod, Tailwind CSS and Vitest.
 
-## Stack
+## Overview
+
+This project is a frontend dashboard for managing users. It includes CRUD actions, form validation, search, sorting, local persistence and a simulated API layer using RTK Query.
+
+The goal of the project is to demonstrate a production-oriented frontend structure: typed global state, separated responsibilities, reusable components, automated tests and a CI pipeline.
+
+## Features
+
+- Create, edit and delete users.
+- Search users by name, email or GitHub username.
+- Sort table data by name, email or GitHub profile.
+- Form validation with React Hook Form and Zod.
+- Simulated API layer with RTK Query.
+- Cache invalidation and optimistic updates.
+- Local persistence with `localStorage`.
+- Responsive UI built with Tailwind CSS.
+- Custom favicon and subtle CSS animations.
+- Automated checks with ESLint, TypeScript, Vitest and GitHub Actions.
+
+## Tech stack
 
 - React
 - TypeScript
@@ -16,31 +35,14 @@ El objetivo del proyecto es evolucionar un CRUD básico hacia una pequeña aplic
 - Tailwind CSS
 - Sonner
 - Vitest
-- React Testing Library
-- GitHub Actions
+- Testing Library
 - Vite
+- GitHub Actions
+- Netlify
 
-## Funcionalidades
+## Architecture
 
-- Listado de usuarios.
-- Creación de usuarios.
-- Edición de usuarios.
-- Eliminación con confirmación.
-- Validación de formularios con Zod.
-- Mensajes de error por campo.
-- Feedback visual con toasts.
-- Búsqueda por nombre, email o usuario de GitHub.
-- Ordenación por nombre, email o GitHub.
-- Estados de carga y error.
-- Empty states para mejorar la experiencia de usuario.
-- Persistencia en localStorage.
-- API simulada con RTK Query.
-- Caché e invalidación de datos.
-- Optimistic UI en edición y eliminación.
-- Tests unitarios y de integración.
-- Workflow de CI con lint, typecheck, test y build.
-
-## Arquitectura
+The project is organized around feature-based responsibilities:
 
 ```txt
 src/
@@ -64,79 +66,64 @@ src/
     └── test-utils.tsx
 ```
 
-### Store
+## Key decisions
 
-La store se configura con `configureStore` y combina dos piezas principales:
+### Redux Toolkit for UI state
 
-- `usersUi`: estado de interfaz para búsqueda y ordenación.
-- `usersApi`: capa de datos creada con RTK Query.
+Redux Toolkit is used to manage dashboard UI state such as search filters and table sorting.
 
-También se añaden middlewares para persistencia de filtros y gestión centralizada de errores.
+### RTK Query for the data layer
 
-### RTK Query
+User operations are handled through RTK Query, which provides a realistic API-oriented structure while keeping the project self-contained.
 
-El proyecto usa `createApi` con `fakeBaseQuery` para simular una API sin depender de un backend real. Esto permite trabajar con patrones habituales en proyectos profesionales:
+### React Hook Form + Zod
 
-- queries
-- mutations
-- loading states
-- error states
-- cache
-- tag invalidation
-- optimistic updates
+Forms are validated using a schema-first approach, keeping validation rules centralized and reusable.
 
-### Formularios
+### LocalStorage persistence
 
-Los formularios están gestionados con React Hook Form y validados con Zod. Los tipos del formulario se infieren directamente desde el schema, reduciendo duplicidad y manteniendo alineadas las reglas de validación con TypeScript.
+The app persists users and UI preferences in `localStorage`, so the demo keeps state between page reloads.
 
-### Testing
+### Testing and CI
 
-El proyecto incluye tests para:
+The project includes unit and component tests, plus a GitHub Actions workflow that runs linting, type checking, tests and production build on every push or pull request to `main`.
 
-- reducers del estado de interfaz
-- endpoints de RTK Query
-- creación de usuarios
-- listado, búsqueda y eliminación de usuarios
-
-## Scripts
+## Available scripts
 
 ```bash
 npm run dev
-npm run lint
 npm run typecheck
+npm run lint
 npm test
 npm run build
 npm run preview
 ```
 
-## Instalación
+## Getting started
 
 ```bash
+git clone https://github.com/i92jogae/react-crud-redux.git
+cd react-crud-redux
 npm install
 npm run dev
 ```
 
-## Decisiones técnicas
+## Production
 
-### ¿Por qué Redux Toolkit?
+```bash
+npm run build
+```
 
-Redux Toolkit es la forma moderna y recomendada de trabajar con Redux. Permite reducir boilerplate, configurar la store con buenas prácticas por defecto, crear slices de forma más limpia y escribir actualizaciones inmutables de una manera más sencilla gracias a Immer.
+The production build is deployed on Netlify:
 
-### ¿Por qué RTK Query?
+```txt
+https://redux-users-dashboard.netlify.app/
+```
 
-RTK Query permite centralizar la capa de datos y gestionar automáticamente estados de carga, errores, caché e invalidación. Aunque en este proyecto se usa una API simulada, la arquitectura queda preparada para sustituirla por una API REST real.
+## Possible improvements
 
-### ¿Por qué React Hook Form + Zod?
-
-React Hook Form simplifica la gestión de formularios y Zod permite definir validaciones reutilizables y tipadas. Juntos ayudan a construir formularios más robustos, mantenibles y fáciles de testear.
-
-## Próximas mejoras posibles
-
-- Paginación.
-- Filtros avanzados.
-- Modo claro/oscuro.
-- Integración con una API REST real.
-- Autenticación.
-- Roles de usuario.
-- Tabla con selección múltiple.
-- Tests end-to-end con Playwright.
+- Add pagination for bigger datasets.
+- Replace the simulated API with a real backend.
+- Add user roles and status labels.
+- Add e2e tests with Playwright.
+- Add a dark/light mode toggle.
