@@ -1,66 +1,32 @@
-import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
+import { loadUsersUiState } from './storage'
+import type { SortBy, UsersUiState } from './types'
 
-const DEFAULT_STATE = [
-  {
-    id: '1',
-    name: 'Enrique Pérez',
-    email: 'miguel@gmail.com',
-    github: 'miguel'
-  },
-  {
-    id: '2',
-    name: 'Pablo Pérez',
-    email: 'pablo@gmail.com',
-    github: 'pablo'
-  },
-  {
-    id: '3',
-    name: 'Juan Robles',
-    email: 'juanrobles@gmail.com',
-    github: 'juan'
-  }
-]
-export type UserId = string
-
-export interface User {
-  name: string;
-  email: string;
-  github: string;
-}
-
-export interface UserWithId extends User {
-  id: UserId
-}
-
-const initialState: UserWithId[] = (() => {
-  const persistedState = localStorage.getItem("_redux_state_")
-  if (persistedState) {
-    return JSON.parse(persistedState).users
-  }
-  return DEFAULT_STATE
-})()
+const initialState: UsersUiState = loadUsersUiState()
 
 export const usersSlice = createSlice({
-  name: 'users',
+  name: 'usersUi',
   initialState,
   reducers: {
-    addNewUser: (state, action: PayloadAction<User>) => {
-      const id = crypto.randomUUID()
-      state.push({ id, ...action.payload}) // Redux allows you to update the state without needing to return a new one, in a very simple way.
+    setSearch: (state, action: PayloadAction<string>) => {
+      state.search = action.payload
     },
-    deleteUserById: (state, action: PayloadAction<UserId>) => {
-      const id = action.payload;
-      return state.filter((user) => user.id !== id);
-    },
-    rollbackUser: (state, action: PayloadAction<UserWithId>) => {
-      const isUserAlreadyDefined = state.some(user => user.id === action.payload.id)
-      if (!isUserAlreadyDefined) {
-        state.push(action.payload)
+    setSortBy: (state, action: PayloadAction<SortBy>) => {
+      if (state.sortBy === action.payload) {
+        state.sortDirection = state.sortDirection === 'asc' ? 'desc' : 'asc'
+        return
       }
-    }
-  },
+
+      state.sortBy = action.payload
+      state.sortDirection = 'asc'
+    },
+    toggleSortDirection: (state) => {
+      state.sortDirection = state.sortDirection === 'asc' ? 'desc' : 'asc'
+    },
+    resetFilters: () => loadUsersUiState()
+  }
 })
 
-export default usersSlice.reducer
+export const { resetFilters, setSearch, setSortBy, toggleSortDirection } = usersSlice.actions
 
-export const { deleteUserById, addNewUser, rollbackUser } = usersSlice.actions
+export default usersSlice.reducer
