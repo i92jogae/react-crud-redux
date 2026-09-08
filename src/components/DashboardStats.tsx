@@ -3,13 +3,13 @@ import { useGetUsersQuery } from '../store/users/api'
 const statCards = [
   {
     label: 'Usuarios totales',
-    getValue: (usersLength: number, usersWithGithub: number) => usersLength,
+    getValue: (usersLength: number) => usersLength,
     description: 'Registros sincronizados con la API simulada',
     icon: '👥'
   },
   {
     label: 'Perfiles GitHub',
-    getValue: (usersLength: number, usersWithGithub: number) => usersWithGithub,
+    getValue: (_usersLength: number, usersWithGithub: number) => usersWithGithub,
     description: 'Usuarios con perfil técnico asociado',
     icon: '⌁'
   },
