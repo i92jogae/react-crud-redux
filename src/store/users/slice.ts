@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
-import { loadUsersUiState } from './storage'
+import { DEFAULT_USERS_UI_STATE, loadUsersUiState } from './storage'
 import type { SortBy, UsersUiState } from './types'
 
 const initialState: UsersUiState = loadUsersUiState()
@@ -23,7 +23,7 @@ export const usersSlice = createSlice({
     toggleSortDirection: (state) => {
       state.sortDirection = state.sortDirection === 'asc' ? 'desc' : 'asc'
     },
-    resetFilters: () => loadUsersUiState()
+    resetFilters: () => ({ ...DEFAULT_USERS_UI_STATE })
   }
 })
 
