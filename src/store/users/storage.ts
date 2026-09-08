@@ -57,6 +57,7 @@ const isUsersUiState = (value: unknown): value is UsersUiState => {
 }
 
 const cloneDefaultUsers = () => DEFAULT_USERS.map((user) => ({ ...user }))
+const cloneDefaultUsersUiState = () => ({ ...DEFAULT_USERS_UI_STATE })
 
 export const getUsersFromLocalStorage = (): UserWithId[] => {
   try {
@@ -106,7 +107,7 @@ export const loadUsersUiState = (): UsersUiState => {
   try {
     const persistedUiState = localStorage.getItem(USERS_UI_STORAGE_KEY)
 
-    if (!persistedUiState) return DEFAULT_USERS_UI_STATE
+    if (!persistedUiState) return cloneDefaultUsersUiState()
 
     const parsedUiState: unknown = JSON.parse(persistedUiState)
 
@@ -117,7 +118,7 @@ export const loadUsersUiState = (): UsersUiState => {
     localStorage.removeItem(USERS_UI_STORAGE_KEY)
   }
 
-  return DEFAULT_USERS_UI_STATE
+  return cloneDefaultUsersUiState()
 }
 
 export const saveUsersUiState = (state: UsersUiState) => {
