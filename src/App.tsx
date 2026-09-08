@@ -41,7 +41,7 @@ function App() {
                 href="https://redux-users-dashboard.netlify.app/"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center justify-center rounded-xl bg-emerald-400 px-5 py-3 text-sm font800 text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:-translate-y-0.5 hover:bg-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                className="inline-flex items-center justify-center rounded-xl bg-emerald-400 px-5 py-3 text-sm font-bold text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:-translate-y-0.5 hover:bg-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-200"
               >
                 Ver demo en Netlify
               </a>
