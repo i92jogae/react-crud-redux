@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { render, type RenderOptions } from '@testing-library/react'
 import { configureStore } from '@reduxjs/toolkit'
 import type { ReactElement } from 'react'
