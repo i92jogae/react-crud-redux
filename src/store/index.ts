@@ -1,43 +1,48 @@
-import { configureStore, type Middleware } from '@reduxjs/toolkit'
-import usersReducer, { rollbackUser } from './users/slice'
+import { configureStore, isRejectedWithValue, type Middleware } from '@reduxjs/toolkit'
 import { toast } from 'sonner'
+import { usersApi } from './users/api'
+import usersUiReducer from './users/slice'
+import { saveUsersUiState } from './users/storage'
+import type { UsersUiState } from './users/types'
 
-const persistanceLocalStorageMiddleware: Middleware = (store) => (next) => (action) => {
-  next(action)
-  localStorage.setItem("_redux_state_", JSON.stringify(store.getState()))
-}
-
-const syncWithDatabaseMiddleware: Middleware = store => next => action => {
-  const { type, payload } = action
-  const previousState = store.getState()
-  console.log(action, 'state:', store.getState())
-  next(action)
-
-  console.log(action, 'state:', store.getState()) 
-
-  // Optimistic UI update
-  if (type === 'users/deleteUserById') { 
-    const userToRemove = previousState.users.find(user => user.id === payload) 
-    fetch(`https://jsonplaceholder.typicode.com/users/${payload}`, {
-      method: 'DELETE'
-    })
-      .then(response => {
-        if (response.ok) toast.success(`Usuario ${payload} eliminado correctamente`)
-      })
-      .catch((error) => {
-        toast.error(`Error deleting user: ${error}`)
-        if (userToRemove) store.dispatch(rollbackUser(userToRemove))
-      })
+const getRejectedMessage = (payload: unknown) => {
+  if (typeof payload === 'object' && payload !== null && 'message' in payload) {
+    return String(payload.message)
   }
 
+  return 'Ha ocurrido un error al sincronizar los usuarios'
 }
+
+const persistenceLocalStorageMiddleware: Middleware = (storeApi) => (next) => (action) => {
+  const result = next(action)
+  const state = storeApi.getState() as { usersUi: UsersUiState }
+
+  saveUsersUiState(state.usersUi)
+
+  return result
+}
+
+const rtkQueryErrorToastMiddleware: Middleware = () => (next) => (action) => {
+  const result = next(action)
+
+  if (isRejectedWithValue(action)) {
+    toast.error(getRejectedMessage(action.payload))
+  }
+
+  return result
+}
+
 export const store = configureStore({
   reducer: {
-    users: usersReducer
+    usersUi: usersUiReducer,
+    [usersApi.reducerPath]: usersApi.reducer
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(persistanceLocalStorageMiddleware).concat(syncWithDatabaseMiddleware)
+    getDefaultMiddleware()
+      .concat(usersApi.middleware)
+      .concat(persistenceLocalStorageMiddleware)
+      .concat(rtkQueryErrorToastMiddleware)
 })
 
-export type RootState = ReturnType<typeof store.getState> // We retrieve the store type we created
+export type RootState = ReturnType<typeof store.getState>
 export type AppDispatch = typeof store.dispatch
