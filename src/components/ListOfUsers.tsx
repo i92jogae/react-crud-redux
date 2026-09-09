@@ -246,7 +246,7 @@ export function ListOfUsers() {
                   <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400 md:hidden">
                     Email
                   </p>
-                  <p className="mt-1 break-all text-sm text-slate-600 md:mt-0 md:truncate">
+                  <p className="mt-1 break-all text-sm text-slate-700 md:mt-0 md:truncate">
                     {user.email}
                   </p>
                 </div>
@@ -259,7 +259,7 @@ export function ListOfUsers() {
                     href={`https://github.com/${user.github}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="mt-1 inline-block max-w-full truncate text-sm font-bold text-emerald-700 hover:text-emerald-800 hover:underline md:mt-0"
+                    className="mt-1 inline-block max-w-full truncate text-sm text-slate-700 hover:font-bold hover:underline md:mt-0"
                   >
                     @{user.github}
                   </a>
