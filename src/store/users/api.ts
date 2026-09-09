@@ -1,5 +1,5 @@
 import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react'
-import { getUsersFromLocalStorage, saveUsersToLocalStorage } from './storage'
+import { DEFAULT_USERS, getUsersFromLocalStorage, saveUsersToLocalStorage } from './storage'
 import type { User, UserId, UserWithId } from './types'
 
 type ApiError = {
@@ -14,6 +14,7 @@ const wait = () =>
   })
 
 const normalize = (value: string) => value.trim().toLowerCase()
+const getDefaultUsers = () => DEFAULT_USERS.map((user) => ({ ...user }))
 
 const findDuplicatedUser = (users: UserWithId[], user: User, currentUserId?: UserId) => {
   const email = normalize(user.email)
@@ -174,6 +175,33 @@ export const usersApi = createApi({
         { type: 'Users', id },
         { type: 'Users', id: 'LIST' }
       ]
+    }),
+
+    resetUsers: builder.mutation<UserWithId[], void>({
+      async queryFn() {
+        await wait()
+
+        const defaultUsers = getDefaultUsers()
+        saveUsersToLocalStorage(defaultUsers)
+
+        return {
+          data: defaultUsers
+        }
+      },
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          usersApi.util.updateQueryData('getUsers', undefined, (draft) => {
+            draft.splice(0, draft.length, ...getDefaultUsers())
+          })
+        )
+
+        try {
+          await queryFulfilled
+        } catch {
+          patchResult.undo()
+        }
+      },
+      invalidatesTags: [{ type: 'Users', id: 'LIST' }]
     })
   })
 })
@@ -182,5 +210,6 @@ export const {
   useAddUserMutation,
   useDeleteUserMutation,
   useGetUsersQuery,
+  useResetUsersMutation,
   useUpdateUserMutation
 } = usersApi
